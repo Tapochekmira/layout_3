@@ -55,6 +55,21 @@ def download_image(url, image_name, folder='image/'):
         file.write(response.content)
 
 
+def get_book_comments(book_id):
+    url = f'http://tululu.org/b{book_id}'
+    response = requests.get(url)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    comments_tag = soup.find('td', class_='ow_px_td').find_all('div', class_='texts')
+    comments = []
+    if comments_tag:
+        for comment in comments_tag:
+            comment = comment.find('span', class_='black')
+            comments.append(comment.text)
+    return comments
+
+
 def download_books(books_folder, images_folder):
     base_download_url = 'https://tululu.org/txt.php'
     books_ids = [i for i in range(1, 11)]
@@ -71,9 +86,12 @@ def download_books(books_folder, images_folder):
             continue
 
         book_name, book_author = get_book_author(book_id)
-        book_image_url = get_book_image_url(book_id)
-        image_name = get_image_name(book_image_url)
-        download_image(book_image_url, image_name, images_folder)
+        print(book_name, end='\n--- ')
+        print( *get_book_comments(book_id), sep='\n--- ')
+        print()
+        # book_image_url = get_book_image_url(book_id)
+        # image_name = get_image_name(book_image_url)
+        # download_image(book_image_url, image_name, images_folder)
         # download_txt(response, f'{book_id}. {book_name}', books_folder)
 
 
