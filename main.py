@@ -11,12 +11,7 @@ def check_for_redirect(response):
         raise requests.HTTPError
 
 
-def get_book_author(book_id):
-    url = f'http://tululu.org/b{book_id}'
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def get_book_author(soup):
     title_tag = soup.find('td', class_='ow_px_td').find('h1')
     return title_tag.text.split(' \xa0 :: \xa0 ')
 
@@ -28,12 +23,7 @@ def download_txt(response, filename, folder='books/'):
         file.write(response.content)
 
 
-def get_book_image_url(book_id):
-    url = f'http://tululu.org/b{book_id}'
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def get_book_image_url(soup):
     image_tag = soup.find('td', class_='ow_px_td').find('img')
     image_url = image_tag['src']
     image_url = urljoin('http://tululu.org/', image_url)
@@ -55,12 +45,7 @@ def download_image(url, image_name, folder='image/'):
         file.write(response.content)
 
 
-def get_book_comments(book_id):
-    url = f'http://tululu.org/b{book_id}'
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def get_book_comments(soup):
     comments_tag = soup.find('td', class_='ow_px_td').find_all('div', class_='texts')
     comments = []
     if comments_tag:
@@ -70,18 +55,34 @@ def get_book_comments(book_id):
     return comments
 
 
-def get_book_genre(book_id):
-    url = f'http://tululu.org/b{book_id}'
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def get_book_genre(soup):
     genre_tag = soup.find('td', class_='ow_px_td').find('span', class_='d_book').find_all('a')
     genres = []
     for genre in genre_tag:
         genre = genre.text
         genres.append(genre)
     return genres
+
+
+def parse_book_page(main_book_url):
+    response = requests.get(main_book_url)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_name, book_author = get_book_author(soup)
+    book_genres = get_book_genre(soup)
+    book_comments = get_book_comments(soup)
+    book_image_url = get_book_image_url(soup)
+    image_name = get_image_name(book_image_url)
+    all_book_parameter ={
+        'book_name': book_name,
+        'book_author': book_author,
+        'book_genres': book_genres,
+        'book_comments': book_comments,
+        'book_image_url': book_image_url,
+        'image_name': image_name,
+    }
+    return all_book_parameter
 
 
 def download_books(books_folder, images_folder):
@@ -99,15 +100,18 @@ def download_books(books_folder, images_folder):
         except requests.HTTPError:
             continue
 
-        book_name, book_author = get_book_author(book_id)
-        print(book_name)
-        print(get_book_genre(book_id))
-        # print( *get_book_comments(book_id), sep='\n--- ')
-        # print()
-        # book_image_url = get_book_image_url(book_id)
-        # image_name = get_image_name(book_image_url)
-        # download_image(book_image_url, image_name, images_folder)
-        # download_txt(response, f'{book_id}. {book_name}', books_folder)
+        main_book_url = f'http://tululu.org/b{book_id}'
+        all_book_parameter = parse_book_page(main_book_url)
+        download_image(
+            all_book_parameter['book_image_url'],
+            all_book_parameter['image_name'],
+            images_folder
+        )
+        download_txt(
+            response,
+            f'{book_id}. {all_book_parameter["book_name"]}',
+            books_folder
+        )
 
 
 if __name__ == '__main__':
@@ -116,6 +120,6 @@ if __name__ == '__main__':
 
     Path(books_folder).mkdir(parents=True, exist_ok=True)
     Path(images_folder).mkdir(parents=True, exist_ok=True)
-    download_books(books_folder,images_folder)
+    download_books(books_folder, images_folder)
 
 
