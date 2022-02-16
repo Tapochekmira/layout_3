@@ -1,5 +1,6 @@
 import requests
 import os
+import argparse
 from pathlib import Path
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
@@ -85,9 +86,9 @@ def parse_book_page(main_book_url):
     return all_book_parameter
 
 
-def download_books(books_folder, images_folder):
+def download_books(start_id, end_id, books_folder, images_folder):
     base_download_url = 'https://tululu.org/txt.php'
-    books_ids = [i for i in range(1, 11)]
+    books_ids = [i for i in range(start_id, end_id)]
 
     for book_id in books_ids:
         response = requests.get(
@@ -115,11 +116,21 @@ def download_books(books_folder, images_folder):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('start_id', help='id первой книги', type=int)
+    parser.add_argument('end_id', help='id последней книги', type=int)
+    args = parser.parse_args()
+
     books_folder = 'books/'
     images_folder = 'images/'
 
     Path(books_folder).mkdir(parents=True, exist_ok=True)
     Path(images_folder).mkdir(parents=True, exist_ok=True)
-    download_books(books_folder, images_folder)
+    download_books(
+        args.start_id,
+        args.end_id,
+        books_folder,
+        images_folder
+    )
 
 
