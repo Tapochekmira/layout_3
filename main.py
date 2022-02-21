@@ -48,21 +48,14 @@ def download_image(url, image_name, folder='image/'):
 
 def get_book_comments(soup):
     comments_tag = soup.find('td', class_='ow_px_td').find_all('div', class_='texts')
-    comments = []
-    if comments_tag:
-        for comment in comments_tag:
-            comment = comment.find('span', class_='black')
-            comments.append(comment.text)
-    return comments
+    comments = [comment.find('span', class_='black') for comment in comments_tag]
+    return comments[:]
 
 
 def get_book_genre(soup):
     genre_tag = soup.find('td', class_='ow_px_td').find('span', class_='d_book').find_all('a')
-    genres = []
-    for genre in genre_tag:
-        genre = genre.text
-        genres.append(genre)
-    return genres
+    genres = [genre.text for genre in genre_tag]
+    return genres[:]
 
 
 def parse_book_page(main_book_url):
