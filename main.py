@@ -82,7 +82,7 @@ def parse_book_page(main_book_url):
 def download_books(start_id, end_id, books_folder, images_folder):
     base_download_url = 'https://tululu.org/txt.php'
 
-    for book_id in range(start_id, end_id):
+    for book_id in range(start_id, end_id + 1):
         response = requests.get(
             base_download_url,
             params={'id': book_id}
