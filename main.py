@@ -17,7 +17,7 @@ def get_book_author(soup):
     return title_tag.text.split(' \xa0 :: \xa0 ')
 
 
-def download_txt(response, filename, folder='books/'):
+def save_txt(response, filename, folder='books/'):
     filename = sanitize_filename(filename)
     directory = os.path.join(folder, filename)
     with open(f'{directory}.txt', 'wb') as file:
@@ -107,7 +107,7 @@ def download_books(start_id, end_id, books_folder, images_folder):
             all_book_parameter['image_name'],
             images_folder
         )
-        download_txt(
+        save_txt(
             response,
             f'{book_id}. {all_book_parameter["book_name"]}',
             books_folder
