@@ -93,7 +93,7 @@ def download_books(start_id, end_id, books_folder, images_folder):
         except requests.HTTPError:
             continue
 
-        main_book_url = f'http://tululu.org/b{book_id}'
+        main_book_url = f'http://tululu.org/b{book_id}/'
         all_book_parameter = parse_book_page(main_book_url)
         download_image(
             all_book_parameter['book_image_url'],
