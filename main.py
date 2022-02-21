@@ -21,7 +21,7 @@ def save_txt(response, filename, folder='books/'):
     filename = sanitize_filename(filename)
     directory = os.path.join(folder, filename)
     with open(f'{directory}.txt', 'wb') as file:
-        file.write(response.content)
+        file.write(response.text)
 
 
 def get_book_image_url(soup):
