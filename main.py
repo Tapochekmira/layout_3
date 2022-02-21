@@ -60,7 +60,11 @@ def get_book_genre(soup):
 
 def parse_book_page(main_book_url):
     response = requests.get(main_book_url)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+        check_for_redirect(response)
+    except requests.HTTPError:
+        return
 
     soup = BeautifulSoup(response.text, 'lxml')
     book_name, book_author = get_book_author(soup)
@@ -87,24 +91,25 @@ def download_books(start_id, end_id, books_folder, images_folder):
             base_download_url,
             params={'id': book_id}
         )
-        response.raise_for_status()
         try:
+            response.raise_for_status()
             check_for_redirect(response)
         except requests.HTTPError:
             continue
 
         main_book_url = f'http://tululu.org/b{book_id}/'
         all_book_parameter = parse_book_page(main_book_url)
-        download_image(
-            all_book_parameter['book_image_url'],
-            all_book_parameter['image_name'],
-            images_folder
-        )
-        save_txt(
-            response,
-            f'{book_id}. {all_book_parameter["book_name"]}',
-            books_folder
-        )
+        if all_book_parameter:
+            download_image(
+                all_book_parameter['book_image_url'],
+                all_book_parameter['image_name'],
+                images_folder
+            )
+            save_txt(
+                response,
+                f'{book_id}. {all_book_parameter["book_name"]}',
+                books_folder
+            )
 
 
 if __name__ == '__main__':
