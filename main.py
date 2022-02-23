@@ -84,6 +84,8 @@ def download_books(start_id, end_id, books_folder, images_folder):
     base_download_url = 'https://tululu.org/txt.php'
 
     for book_id in range(start_id, end_id + 1):
+        main_book_url = f'http://tululu.org/b{book_id}/'
+        
         response = requests.get(
             base_download_url,
             params={'id': book_id}
@@ -91,14 +93,11 @@ def download_books(start_id, end_id, books_folder, images_folder):
         try:
             response.raise_for_status()
             check_for_redirect(response)
-        except requests.HTTPError:
-            continue
-
-        main_book_url = f'http://tululu.org/b{book_id}/'
-        try:
             all_book_parameter = parse_book_page(main_book_url)
         except requests.HTTPError:
             continue
+            
+        
         if all_book_parameter:
             download_image(
                 all_book_parameter['book_image_url'],
