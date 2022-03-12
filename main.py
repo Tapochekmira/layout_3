@@ -14,7 +14,7 @@ def check_for_redirect(response):
 
 
 def get_book_author(soup):
-    title_tag = soup.find('td', class_='ow_px_td').find('h1')
+    title_tag = soup.select_one('.ow_px_td h1')
     return title_tag.text.split(' \xa0 :: \xa0 ')
 
 
@@ -26,9 +26,9 @@ def save_txt(response, filename, folder='books/'):
 
 
 def get_book_image_url(soup):
-    image_tag = soup.find('td', class_='ow_px_td').find('img')
-    image_url = image_tag['src']
+    image_url = soup.select_one('.ow_px_td img')['src']
     image_url = urljoin('http://tululu.org/', image_url)
+
     return image_url
 
 
@@ -48,13 +48,13 @@ def download_image(url, image_name, folder='image/'):
 
 
 def get_book_comments(soup):
-    comments_tag = soup.find('td', class_='ow_px_td').find_all('div', class_='texts')
-    comments = [comment.find('span', class_='black').text for comment in comments_tag]
+    comments_tag = soup.select('.ow_px_td .texts .black')
+    comments = [comment.text for comment in comments_tag]
     return comments
 
 
 def get_book_genre(soup):
-    genre_tag = soup.find('td', class_='ow_px_td').find('span', class_='d_book').find_all('a')
+    genre_tag = soup.select('.pw_px_td .d_book a')
     genres = [genre.text for genre in genre_tag]
     return genres
 
@@ -91,11 +91,11 @@ def get_all_books_on_page(page_url):
         return
 
     soup = BeautifulSoup(response.text, 'lxml')
-    books_tags = soup.find('td', class_='ow_px_td').find_all('div', class_='bookimage')
-    books_ids = []
-    for book_tag in books_tags:
-        book_url = book_tag.find('a')['href']
-        books_ids.append(urljoin('http://tululu.org', book_url))
+    books_tags = soup.select('.ow_px_td .bookimage a')
+    books_ids = [
+        urljoin('http://tululu.org', book_tag['href'])
+        for book_tag in books_tags
+    ]
     return books_ids
 
 
@@ -135,7 +135,6 @@ def download_all_books(start_page, end_page, books_folder, images_folder):
         books_urls = get_all_books_on_page(f'{base_page_url}{page_number}/')
         books += download_books_on_page(books_urls, books_folder, images_folder)
     pprint(books)
-    print(len(books))
 
 
 if __name__ == '__main__':
