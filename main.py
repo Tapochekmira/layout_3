@@ -1,9 +1,10 @@
-import requests
-import os
 import argparse
-from pathlib import Path
+import os
+import requests
 from bs4 import BeautifulSoup
+from pathlib import Path
 from pathvalidate import sanitize_filename
+from pprint import pprint
 from urllib.parse import urljoin, urlparse
 
 
@@ -21,7 +22,7 @@ def save_txt(response, filename, folder='books/'):
     filename = sanitize_filename(filename)
     directory = os.path.join(folder, filename)
     with open(f'{directory}.txt', 'w') as file:
-         file.write(response.text)
+        file.write(response.text)
 
 
 def get_book_image_url(soup):
@@ -48,7 +49,7 @@ def download_image(url, image_name, folder='image/'):
 
 def get_book_comments(soup):
     comments_tag = soup.find('td', class_='ow_px_td').find_all('div', class_='texts')
-    comments = [comment.find('span', class_='black') for comment in comments_tag]
+    comments = [comment.find('span', class_='black').text for comment in comments_tag]
     return comments
 
 
@@ -69,7 +70,7 @@ def parse_book_page(main_book_url):
     book_comments = get_book_comments(soup)
     book_image_url = get_book_image_url(soup)
     image_name = get_image_name(book_image_url)
-    all_book_parameter ={
+    all_book_parameter = {
         'book_name': book_name,
         'book_author': book_author,
         'book_genres': book_genres,
@@ -80,25 +81,38 @@ def parse_book_page(main_book_url):
     return all_book_parameter
 
 
-def download_books(start_id, end_id, books_folder, images_folder):
-    base_download_url = 'https://tululu.org/txt.php'
+def get_all_books_on_page(page_url):
+    response = requests.get(page_url)
+    response.raise_for_status()
+    try:
+        response.raise_for_status()
+        check_for_redirect(response)
+    except requests.HTTPError:
+        return
 
-    for book_id in range(start_id, end_id + 1):
-        response = requests.get(
-            base_download_url,
-            params={'id': book_id}
-        )
+    soup = BeautifulSoup(response.text, 'lxml')
+    books_tags = soup.find('td', class_='ow_px_td').find_all('div', class_='bookimage')
+    books_ids = []
+    for book_tag in books_tags:
+        book_url = book_tag.find('a')['href']
+        books_ids.append(urljoin('http://tululu.org', book_url))
+    return books_ids
+
+
+def download_books_on_page(books_urls, books_folder, images_folder):
+    books_on_page = []
+    for book_id, book_url in enumerate(books_urls):
+        response = requests.get(book_url)
         try:
             response.raise_for_status()
             check_for_redirect(response)
         except requests.HTTPError:
-            continue
-
-        main_book_url = f'http://tululu.org/b{book_id}/'
+            return
         try:
-            all_book_parameter = parse_book_page(main_book_url)
+            all_book_parameter = parse_book_page(book_url)
         except requests.HTTPError:
             continue
+
         if all_book_parameter:
             download_image(
                 all_book_parameter['book_image_url'],
@@ -107,15 +121,27 @@ def download_books(start_id, end_id, books_folder, images_folder):
             )
             save_txt(
                 response,
-                f'{book_id}. {all_book_parameter["book_name"]}',
+                f'{book_id}.{all_book_parameter["book_name"]}',
                 books_folder
             )
+        books_on_page.append(all_book_parameter)
+    return books_on_page
+
+
+def download_all_books(start_page, end_page, books_folder, images_folder):
+    base_page_url = 'http://tululu.org/l55/'
+    books = []
+    for page_number in range(start_page, end_page + 1):
+        books_urls = get_all_books_on_page(f'{base_page_url}{page_number}/')
+        books += download_books_on_page(books_urls, books_folder, images_folder)
+    pprint(books)
+    print(len(books))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('start_id', help='id первой книги', type=int)
-    parser.add_argument('end_id', help='id последней книги', type=int)
+    parser.add_argument('start_page', help='номер первой страницы с книгами', type=int)
+    parser.add_argument('end_page', help='номер последней страницы с книгами', type=int)
     args = parser.parse_args()
 
     books_folder = 'books/'
@@ -123,11 +149,9 @@ if __name__ == '__main__':
 
     Path(books_folder).mkdir(parents=True, exist_ok=True)
     Path(images_folder).mkdir(parents=True, exist_ok=True)
-    download_books(
-        args.start_id,
-        args.end_id,
+    download_all_books(
+        args.start_page,
+        args.end_page,
         books_folder,
         images_folder
     )
-
-
