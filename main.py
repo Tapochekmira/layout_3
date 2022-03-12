@@ -54,7 +54,7 @@ def get_book_comments(soup):
 
 
 def get_book_genre(soup):
-    genre_tag = soup.select('.pw_px_td .d_book a')
+    genre_tag = soup.select('.ow_px_td span.d_book a')
     genres = [genre.text for genre in genre_tag]
     return genres
 
@@ -63,6 +63,7 @@ def parse_book_page(main_book_url):
     response = requests.get(main_book_url)
     response.raise_for_status()
     check_for_redirect(response)
+    print(main_book_url)
 
     soup = BeautifulSoup(response.text, 'lxml')
     book_name, book_author = get_book_author(soup)
