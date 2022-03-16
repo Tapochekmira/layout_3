@@ -28,7 +28,6 @@ def save_txt(response, filename, folder='books/'):
 def get_book_image_url(soup):
     image_url = soup.select_one('.ow_px_td img')['src']
     image_url = urljoin('https://tululu.org/', image_url)
-
     return image_url
 
 
@@ -201,24 +200,40 @@ if __name__ == '__main__':
         type=bool,
         default=False
     )
+    parser.add_argument(
+        '--dest_folder',
+        help='Указать путь к каталогу с результатами '
+             'парсинга: картинкам, книгам, JSON.'
+             'По умолчанию директория файла main.py',
+        type=str,
+        default=''
+    )
+    parser.add_argument(
+        '--json_path',
+        help='указать свой путь к *.json файлу с результатами',
+        type=str,
+        default='json/'
+    )
     args = parser.parse_args()
 
     books_folder = 'books/'
     images_folder = 'images/'
-    json_folder = 'json/'
 
     if not args.skip_txt:
-        Path(books_folder).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(args.dest_folder, books_folder)).\
+            mkdir(parents=True, exist_ok=True)
     if not args.skip_imgs:
-        Path(images_folder).mkdir(parents=True, exist_ok=True)
-    Path(json_folder).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(args.dest_folder, images_folder)).\
+            mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(args.dest_folder, args.json_path)).\
+        mkdir(parents=True, exist_ok=True)
 
     download_all_books(
         args.start_page,
         args.end_page,
-        books_folder,
-        images_folder,
-        json_folder,
+        os.path.join(args.dest_folder, books_folder),
+        os.path.join(args.dest_folder, images_folder),
+        os.path.join(args.dest_folder, args.json_path),
         args.skip_imgs,
         args.skip_txt,
     )
