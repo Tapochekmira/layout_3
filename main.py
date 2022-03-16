@@ -63,7 +63,6 @@ def parse_book_page(main_book_url):
     response = requests.get(main_book_url)
     response.raise_for_status()
     check_for_redirect(response)
-    print(main_book_url)
 
     soup = BeautifulSoup(response.text, 'lxml')
     book_name, book_author = get_book_author(soup)
@@ -138,10 +137,29 @@ def download_all_books(start_page, end_page, books_folder, images_folder):
     pprint(books)
 
 
+def get_page_amount():
+    url = 'http://tululu.org/l55/'
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
+    comments_tag = soup.select('.ow_px_td .center .npage')[-1]
+    return int(comments_tag.text)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('start_page', help='номер первой страницы с книгами', type=int)
-    parser.add_argument('end_page', help='номер последней страницы с книгами', type=int)
+    parser.add_argument(
+        '--start_page',
+        help='номер первой страницы с книгами',
+        type=int,
+        default=1
+    )
+    parser.add_argument(
+        '--end_page',
+        help='номер последней страницы с книгами',
+        type=int,
+        default=get_page_amount()
+    )
     args = parser.parse_args()
 
     books_folder = 'books/'
@@ -149,9 +167,9 @@ if __name__ == '__main__':
 
     Path(books_folder).mkdir(parents=True, exist_ok=True)
     Path(images_folder).mkdir(parents=True, exist_ok=True)
-    download_all_books(
-        args.start_page,
-        args.end_page,
-        books_folder,
-        images_folder
-    )
+    # download_all_books(
+    #     start_page,
+    #     end_page,
+    #     books_folder,
+    #     images_folder
+    # )
