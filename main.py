@@ -1,10 +1,10 @@
 import argparse
 import os
+import json
 import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 from pathvalidate import sanitize_filename
-from pprint import pprint
 from urllib.parse import urljoin, urlparse
 
 
@@ -27,7 +27,7 @@ def save_txt(response, filename, folder='books/'):
 
 def get_book_image_url(soup):
     image_url = soup.select_one('.ow_px_td img')['src']
-    image_url = urljoin('http://tululu.org/', image_url)
+    image_url = urljoin('https://tululu.org/', image_url)
 
     return image_url
 
@@ -93,13 +93,13 @@ def get_all_books_on_page(page_url):
     soup = BeautifulSoup(response.text, 'lxml')
     books_tags = soup.select('.ow_px_td .bookimage a')
     books_ids = [
-        urljoin('http://tululu.org', book_tag['href'])
+        urljoin('https://tululu.org', book_tag['href'])
         for book_tag in books_tags
     ]
     return books_ids
 
 
-def download_books_on_page(books_urls, books_folder, images_folder):
+def download_books_on_page(books_urls, books_folder, images_folder, page_number):
     books_on_page = []
     for book_id, book_url in enumerate(books_urls):
         response = requests.get(book_url)
@@ -121,24 +121,40 @@ def download_books_on_page(books_urls, books_folder, images_folder):
             )
             save_txt(
                 response,
-                f'{book_id}.{all_book_parameter["book_name"]}',
+                f'{page_number}_{book_id}.{all_book_parameter["book_name"]}',
                 books_folder
             )
         books_on_page.append(all_book_parameter)
     return books_on_page
 
 
-def download_all_books(start_page, end_page, books_folder, images_folder):
-    base_page_url = 'http://tululu.org/l55/'
+def save_json(books, json_folder):
+    with open(f'{json_folder}books.json', 'w') as f:
+        json.dump(books, f)
+
+
+def download_all_books(
+        start_page,
+        end_page,
+        books_folder,
+        images_folder,
+        json_folder
+):
+    base_page_url = 'https://tululu.org/l55/'
     books = []
     for page_number in range(start_page, end_page + 1):
         books_urls = get_all_books_on_page(f'{base_page_url}{page_number}/')
-        books += download_books_on_page(books_urls, books_folder, images_folder)
-    pprint(books)
+        books += download_books_on_page(
+            books_urls,
+            books_folder,
+            images_folder,
+            page_number
+        )
+    save_json(books, json_folder)
 
 
 def get_page_amount():
-    url = 'http://tululu.org/l55/'
+    url = 'https://tululu.org/l55/'
     response = requests.get(url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'lxml')
@@ -164,12 +180,16 @@ if __name__ == '__main__':
 
     books_folder = 'books/'
     images_folder = 'images/'
+    json_folder = 'json/'
 
     Path(books_folder).mkdir(parents=True, exist_ok=True)
     Path(images_folder).mkdir(parents=True, exist_ok=True)
-    # download_all_books(
-    #     start_page,
-    #     end_page,
-    #     books_folder,
-    #     images_folder
-    # )
+    Path(json_folder).mkdir(parents=True, exist_ok=True)
+
+    download_all_books(
+        args.start_page,
+        args.end_page,
+        books_folder,
+        images_folder,
+        json_folder
+    )
