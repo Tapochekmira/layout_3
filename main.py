@@ -99,7 +99,14 @@ def get_all_books_on_page(page_url):
     return books_ids
 
 
-def download_books_on_page(books_urls, books_folder, images_folder, page_number):
+def download_books_on_page(
+        books_urls,
+        books_folder,
+        images_folder,
+        page_number,
+        skip_imgs,
+        skip_txt,
+):
     books_on_page = []
     for book_id, book_url in enumerate(books_urls):
         response = requests.get(book_url)
@@ -114,16 +121,18 @@ def download_books_on_page(books_urls, books_folder, images_folder, page_number)
             continue
 
         if all_book_parameter:
-            download_image(
-                all_book_parameter['book_image_url'],
-                all_book_parameter['image_name'],
-                images_folder
-            )
-            save_txt(
-                response,
-                f'{page_number}_{book_id}.{all_book_parameter["book_name"]}',
-                books_folder
-            )
+            if not skip_imgs:
+                download_image(
+                    all_book_parameter['book_image_url'],
+                    all_book_parameter['image_name'],
+                    images_folder
+                )
+            if not skip_txt:
+                save_txt(
+                    response,
+                    f'{page_number}_{book_id}.{all_book_parameter["book_name"]}',
+                    books_folder
+                )
         books_on_page.append(all_book_parameter)
     return books_on_page
 
@@ -138,7 +147,9 @@ def download_all_books(
         end_page,
         books_folder,
         images_folder,
-        json_folder
+        json_folder,
+        skip_imgs,
+        skip_txt,
 ):
     base_page_url = 'https://tululu.org/l55/'
     books = []
@@ -148,7 +159,9 @@ def download_all_books(
             books_urls,
             books_folder,
             images_folder,
-            page_number
+            page_number,
+            skip_imgs,
+            skip_txt,
         )
     save_json(books, json_folder)
 
@@ -176,14 +189,28 @@ if __name__ == '__main__':
         type=int,
         default=get_page_amount()
     )
+    parser.add_argument(
+        '--skip_imgs',
+        help='Не скачивать картинки',
+        type=bool,
+        default=False
+    )
+    parser.add_argument(
+        '--skip_txt',
+        help='Не скачивать текст книг',
+        type=bool,
+        default=False
+    )
     args = parser.parse_args()
 
     books_folder = 'books/'
     images_folder = 'images/'
     json_folder = 'json/'
 
-    Path(books_folder).mkdir(parents=True, exist_ok=True)
-    Path(images_folder).mkdir(parents=True, exist_ok=True)
+    if not args.skip_txt:
+        Path(books_folder).mkdir(parents=True, exist_ok=True)
+    if not args.skip_imgs:
+        Path(images_folder).mkdir(parents=True, exist_ok=True)
     Path(json_folder).mkdir(parents=True, exist_ok=True)
 
     download_all_books(
@@ -191,5 +218,7 @@ if __name__ == '__main__':
         args.end_page,
         books_folder,
         images_folder,
-        json_folder
+        json_folder,
+        args.skip_imgs,
+        args.skip_txt,
     )
