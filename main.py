@@ -83,11 +83,8 @@ def parse_book_page(main_book_url):
 def get_all_books_on_page(page_url):
     response = requests.get(page_url)
     response.raise_for_status()
-    try:
-        response.raise_for_status()
-        check_for_redirect(response)
-    except requests.HTTPError:
-        return
+    response.raise_for_status()
+    check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
     books_tags = soup.select('.ow_px_td .bookimage a')
@@ -112,9 +109,6 @@ def download_books_on_page(
         try:
             response.raise_for_status()
             check_for_redirect(response)
-        except requests.HTTPError:
-            return
-        try:
             all_book_parameter = parse_book_page(book_url)
         except requests.HTTPError:
             continue
@@ -153,15 +147,19 @@ def download_all_books(
     base_page_url = 'https://tululu.org/l55/'
     books = []
     for page_number in range(start_page, end_page + 1):
-        books_urls = get_all_books_on_page(f'{base_page_url}{page_number}/')
-        books += download_books_on_page(
-            books_urls,
-            books_folder,
-            images_folder,
-            page_number,
-            skip_imgs,
-            skip_txt,
-        )
+        try:
+            books_urls = get_all_books_on_page(f'{base_page_url}{page_number}/')
+            books += download_books_on_page(
+                books_urls,
+                books_folder,
+                images_folder,
+                page_number,
+                skip_imgs,
+                skip_txt,
+            )
+        except requests.HTTPError:
+            continue
+
     save_json(books, json_folder)
 
 
