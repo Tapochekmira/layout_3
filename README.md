@@ -19,6 +19,19 @@
     pip install -r requirements.txt
     ```
 - В корневой директории создайте файл ```.env```.
+- Пропишите в нем состояние переменных:
+  - `DEBUG` 
+  - `SECRET_KEY` 
+  - перечисление доступных доменов в `ALLOWED_HOSTS`
+  - пармаетры базы данных в `DB_URL` выбрав схему, [соответствующую вашей DB](https://github.com/jacobian/dj-database-url#url-schema) 
+
+    Пример для `PostgreSQL`
+    ```
+    DEBUG=False
+    SECRET_KEY=R..........E
+    ALLOWED_HOSTS=www.example.com,www.another.com
+    DB_URL=postgres://g...d:o....g:5114/cas....asca
+    ```
 - Запустите скрипт командой:
     ```
     python main.py
