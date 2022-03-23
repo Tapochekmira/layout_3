@@ -18,7 +18,6 @@
     ```
     pip install -r requirements.txt
     ```
-- В корневой директории создайте файл ```.env```.
 - Запустите скрипт командой:
     ```
     python main.py
