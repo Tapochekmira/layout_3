@@ -191,14 +191,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--skip_imgs',
         help='Не скачивать картинки',
-        type=bool,
-        default=False
+        action='store_true',
     )
     parser.add_argument(
         '--skip_txt',
         help='Не скачивать текст книг',
-        type=bool,
-        default=False
+        action='store_true'
     )
     parser.add_argument(
         '--dest_folder',
