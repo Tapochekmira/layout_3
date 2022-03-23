@@ -205,13 +205,11 @@ if __name__ == '__main__':
         help='Указать путь к каталогу с результатами '
              'парсинга: картинкам, книгам, JSON.'
              'По умолчанию директория файла main.py',
-        type=str,
         default=''
     )
     parser.add_argument(
         '--json_path',
         help='указать свой путь к *.json файлу с результатами',
-        type=str,
         default='json/'
     )
     args = parser.parse_args()
