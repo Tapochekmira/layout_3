@@ -109,24 +109,23 @@ def download_books_on_page(
         try:
             response.raise_for_status()
             check_for_redirect(response)
-            all_book_parameter = parse_book_page(book_url)
+            book_parameters = parse_book_page(book_url)
         except requests.HTTPError:
             continue
 
-        if all_book_parameter:
-            if not skip_imgs:
-                download_image(
-                    all_book_parameter['book_image_url'],
-                    all_book_parameter['image_name'],
-                    images_folder
-                )
-            if not skip_txt:
-                save_txt(
-                    response,
-                    f'{page_number}_{book_id}.{all_book_parameter["book_name"]}',
-                    books_folder
-                )
-        books_on_page.append(all_book_parameter)
+        if not skip_imgs:
+            download_image(
+                book_parameters['book_image_url'],
+                book_parameters['image_name'],
+                images_folder
+            )
+        if not skip_txt:
+            save_txt(
+                response,
+                f'{page_number}_{book_id}.{book_parameters["book_name"]}',
+                books_folder
+            )
+        books_on_page.append(book_parameters)
     return books_on_page
 
 
