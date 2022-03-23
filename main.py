@@ -13,7 +13,7 @@ def check_for_redirect(response):
         raise requests.HTTPError
 
 
-def get_book_author(soup):
+def get_book_name_and_author(soup):
     title_tag = soup.select_one('.ow_px_td h1')
     return title_tag.text.split(' \xa0 :: \xa0 ')
 
@@ -64,7 +64,7 @@ def parse_book_page(main_book_url):
     check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
-    book_name, book_author = get_book_author(soup)
+    book_name, book_author = get_book_name_and_author(soup)
     book_genres = get_book_genre(soup)
     book_comments = get_book_comments(soup)
     book_image_url = get_book_image_url(soup)
