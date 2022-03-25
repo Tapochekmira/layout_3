@@ -2,6 +2,7 @@ import json
 import os
 from pprint import pprint
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from livereload import Server
 
 
 def get_books_from_file(file_path, file_name):
@@ -12,7 +13,13 @@ def get_books_from_file(file_path, file_name):
     return books
 
 
-def fill_template(books, images_path):
+def fill_template():
+    json_file_path = 'json/'
+    json_file_name = 'books.json'
+    images_path = 'images'
+
+    books = get_books_from_file(json_file_path, json_file_name)
+    
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -35,8 +42,8 @@ def fill_template(books, images_path):
 
 
 if __name__ == '__main__':
-    json_file_path = 'json/'
-    json_file_name = 'books.json'
-    images_path = 'images'
-    books = get_books_from_file(json_file_path, json_file_name)
-    fill_template(books, images_path)
+    fill_template()
+
+    server = Server()
+    server.watch('template.html', fill_template)
+    server.serve(root='.')
