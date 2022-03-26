@@ -3,6 +3,7 @@ import os
 from pprint import pprint
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
+from more_itertools import grouper
 
 
 def get_books_from_file(file_path, file_name):
@@ -19,7 +20,7 @@ def fill_template():
     images_path = 'images'
 
     books = get_books_from_file(json_file_path, json_file_name)
-    
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -35,7 +36,9 @@ def fill_template():
         render_books.append(new_render_book)
 
     template = env.get_template('template.html')
-    rendered_page = template.render(books=render_books)
+    rendered_page = template.render(
+        books=list(grouper(render_books, 2, None))
+    )
 
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)

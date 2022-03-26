@@ -11,21 +11,47 @@
     <title>Hello, world!</title>
   </head>
     <body>
-    {% for book in books %}
-      <div class="card mb-3" style="max-width: 540px;">
-        <div class="row no-gutters">
-          <div class="col-md-4">
-            <img src="{{ book.image|urlencode }}" class="card-img" alt="picture for book: '{{ book.name }}'">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">{{book.name}}</h5>
-              <p class="card-text">{{book.author}}</p>
-              <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+    {% for left_book, right_book in books %}
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="{{ left_book.image|urlencode }}" class="card-img" alt="picture for book: '{{ left_book.name }}'">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{left_book.name}}</h5>
+                    <p class="card-text">{{left_book.author}}</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="col">
+            {% if right_book %}
+              <div class="card mb-3" style="max-width: 540px;">
+                <div class="row no-gutters">
+                  <div class="col-md-4">
+                    <img src="{{ right_book.image|urlencode }}" class="card-img" alt="picture for book: '{{ right_book.name }}'">
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title">{{right_book.name}}</h5>
+                      <p class="card-text">{{right_book.author}}</p>
+                      <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>
+
+
     {% endfor %}
     <!-- Optional JavaScript; choose one of the two! -->
 
