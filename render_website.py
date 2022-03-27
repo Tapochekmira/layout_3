@@ -39,6 +39,7 @@ def fill_template():
                 'book_path': os.path.join(f'../{books_path}', book['book_name']),
                 'name': book['book_name'].split('.')[1],
                 'author': book['book_author'],
+                'genres': book['book_genres'],
             }
             render_books.append(new_render_book)
 
