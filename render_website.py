@@ -18,6 +18,7 @@ def fill_template():
     json_file_path = 'json/'
     json_file_name = 'books.json'
     images_path = 'images'
+    books_path = 'books'
 
     books = get_books_from_file(json_file_path, json_file_name)
 
@@ -30,7 +31,8 @@ def fill_template():
     for book in books:
         new_render_book = {
             'image': os.path.join(images_path, book['image_name']),
-            'name': book['book_name'],
+            'book_path': os.path.join(books_path, book['book_name']),
+            'name': book['book_name'].split('.')[1],
             'author': book['book_author'],
         }
         render_books.append(new_render_book)

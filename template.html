@@ -18,13 +18,17 @@
             <div class="card mb-3" style="max-width: 540px;">
               <div class="row no-gutters">
                 <div class="col-md-4">
-                  <img src="{{ left_book.image|urlencode }}" class="card-img" alt="picture for book: '{{ left_book.name }}'">
+                  <img src="{{ left_book.image|urlencode}}" class="card-img" alt="picture for book: '{{ left_book.name }}'">
                 </div>
                 <div class="col-md-8">
                   <div class="card-body">
                     <h5 class="card-title">{{left_book.name}}</h5>
                     <p class="card-text">{{left_book.author}}</p>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                    <p class="card-text">
+                      <small class="text-muted">
+                        <a href="{{left_book.book_path|urlencode}}" target="_blank">Читать</a>
+                      </small>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -41,7 +45,11 @@
                     <div class="card-body">
                       <h5 class="card-title">{{right_book.name}}</h5>
                       <p class="card-text">{{right_book.author}}</p>
-                      <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                        <p class="card-text">
+                          <small class="text-muted">
+                           <a href="{{right_book.book_path|urlencode}}" target="_blank">Читать</a>
+                          </small>
+                        </p>
                     </div>
                   </div>
                 </div>

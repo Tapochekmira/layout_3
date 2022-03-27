@@ -36,6 +36,7 @@ def save_txt(book, filename, folder='books/'):
     directory = os.path.join(folder, filename)
     with open(f'{directory}.txt', 'w') as file:
         file.write(book)
+    return f'{filename}.txt'
 
 
 def get_book_image_url(soup):
@@ -136,14 +137,14 @@ def download_books_on_page(
         if not skip_txt:
             try:
                 book_in_text = download_book(book_url)
-                save_txt(
+                book_parameters['book_name'] = save_txt(
                     book_in_text,
                     f'{page_number}_{book_id}.{book_parameters["book_name"]}',
                     books_folder
                 )
             except requests.HTTPError:
                 continue
-
+        pprint(book_parameters)
         books_on_page.append(book_parameters)
     return books_on_page
 
