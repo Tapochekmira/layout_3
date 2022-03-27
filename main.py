@@ -144,7 +144,6 @@ def download_books_on_page(
                 )
             except requests.HTTPError:
                 continue
-        pprint(book_parameters)
         books_on_page.append(book_parameters)
     return books_on_page
 
