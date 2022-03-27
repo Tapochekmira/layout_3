@@ -18,11 +18,24 @@ def get_book_name_and_author(soup):
     return title_tag.text.split(' \xa0 :: \xa0 ')
 
 
-def save_txt(response, filename, folder='books/'):
+def download_book(book_url):
+    download_url = 'https://tululu.org/txt.php'
+    book_id = urlparse(book_url)
+    book_id = book_id.path.strip('/')[1:]
+    response = requests.get(
+        download_url,
+        params={'id': book_id}
+    )
+    response.raise_for_status()
+    check_for_redirect(response)
+    return response.text
+
+
+def save_txt(book, filename, folder='books/'):
     filename = sanitize_filename(filename)
     directory = os.path.join(folder, filename)
     with open(f'{directory}.txt', 'w') as file:
-        file.write(response.text)
+        file.write(book)
 
 
 def get_book_image_url(soup):
@@ -53,6 +66,7 @@ def get_book_comments(soup):
 
 
 def get_book_genre(soup):
+    base_download_url = 'https://tululu.org/txt.php'
     genre_tag = soup.select('.ow_px_td span.d_book a')
     genres = [genre.text for genre in genre_tag]
     return genres
@@ -120,11 +134,16 @@ def download_books_on_page(
                 images_folder
             )
         if not skip_txt:
-            save_txt(
-                response,
-                f'{page_number}_{book_id}.{book_parameters["book_name"]}',
-                books_folder
-            )
+            try:
+                book_in_text = download_book(book_url)
+                save_txt(
+                    book_in_text,
+                    f'{page_number}_{book_id}.{book_parameters["book_name"]}',
+                    books_folder
+                )
+            except requests.HTTPError:
+                continue
+
         books_on_page.append(book_parameters)
     return books_on_page
 
