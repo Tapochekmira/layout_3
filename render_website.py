@@ -4,6 +4,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 from more_itertools import grouper, chunked
 from pathlib import Path
+from math import ceil
 
 
 def get_books_from_file(file_path, file_name):
@@ -31,6 +32,7 @@ def fill_template():
 
     for page_id, books_per_page in enumerate(list(chunked(books, 10))):
         render_books = []
+        pages_amount = ceil(len(books) / 10)
         for book in books_per_page:
             new_render_book = {
                 'image': os.path.join(f'../{images_path}', book['image_name']),
@@ -42,7 +44,9 @@ def fill_template():
 
         template = env.get_template('template.html')
         rendered_page = template.render(
-            books=list(grouper(render_books, 2, None))
+            books=list(grouper(render_books, 2, None)),
+            pages_amount=pages_amount,
+            current_page=page_id
         )
 
         with open(os.path.join(pages_path, f'index{page_id}.html'), 'w', encoding="utf8") as file:

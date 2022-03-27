@@ -11,6 +11,27 @@
     <title>Hello, world!</title>
   </head>
     <body>
+      <nav aria-label="Page navigation example" class="container">
+        <ul class="pagination">
+          {% if current_page == 0 %}
+            <li class="page-item disabled"><a class="page-link" href="./index{{current_page - 1}}.html">Назад</a></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="./index{{current_page - 1}}.html">Назад</a></li>
+          {% endif %}
+          {% for page_number in range(pages_amount) %}
+            {% if page_number == current_page %}
+              <li class="page-item active"><a class="page-link" href="./index{{page_number}}.html">{{page_number + 1}}</a></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="./index{{page_number}}.html">{{page_number + 1}}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if current_page == pages_amount - 1 %}
+            <li class="page-item disabled"><a class="page-link" href="./index{{current_page + 1}}.html">Вперед</a></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="./index{{current_page + 1}}.html">Вперед</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     {% for left_book, right_book in books %}
       <div class="container">
         <div class="row">
