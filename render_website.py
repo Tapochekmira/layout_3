@@ -35,8 +35,8 @@ def fill_template():
         pages_amount = ceil(len(books) / 10)
         for book in books_per_page:
             new_render_book = {
-                'image': os.path.join(f'../{images_path}', book['image_name']),
-                'book_path': os.path.join(f'../{books_path}', book['book_name']),
+                'image': f'../{images_path}/{book["image_name"]}',
+                'book_path': f'../{books_path}/{book["book_name"]}',
                 'name': book['book_name'].split('.')[1],
                 'author': book['book_author'],
                 'genres': book['book_genres'],
