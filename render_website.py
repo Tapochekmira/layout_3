@@ -49,7 +49,8 @@ def fill_template():
             pages_amount=pages_amount,
             current_page=page_id
         )
-
+        if not page_id:
+            page_id = ''
         with open(os.path.join(pages_path, f'index{page_id}.html'), 'w', encoding="utf8") as file:
             file.write(rendered_page)
 
