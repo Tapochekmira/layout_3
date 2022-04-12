@@ -40,7 +40,7 @@
     python render_website.py
     ```
 - Открыть файл `index.html` в папке 'pages'
-- Размещенный [https://tapochekmira.github.io/layout_3/pages/](https://tapochekmira.github.io/layout_3/pages/)
+- Размещенный [https://tapochekmira.github.io/layout_3/pages/index0.html](https://tapochekmira.github.io/layout_3/pages/index0.html)
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).
