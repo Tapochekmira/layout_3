@@ -30,21 +30,21 @@ def fill_template(books_pre_page):
     )
     pages = list(chunked(books, books_pre_page))
     for page_id, books_per_page in enumerate(pages):
-        render_books = []
+        books_for_render = []
         pages_amount = len(pages)
         for book in books_per_page:
-            new_render_book = {
+            book_for_render = {
                 'image': f'../{images_path}/{book["image_name"]}',
                 'book_path': f'../{books_path}/{book["book_name"]}',
                 'name': book['book_name'].split('.')[1],
                 'author': book['book_author'],
                 'genres': book['book_genres'],
             }
-            render_books.append(new_render_book)
+            books_for_render.append(book_for_render)
 
         template = env.get_template('template.html')
         rendered_page = template.render(
-            books=list(grouper(render_books, 2, None)),
+            books=list(grouper(books_for_render, 2, None)),
             pages_amount=pages_amount,
             current_page=page_id
         )
