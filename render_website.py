@@ -28,10 +28,10 @@ def fill_template(books_pre_page):
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-
-    for page_id, books_per_page in enumerate(list(chunked(books, books_pre_page))):
+    pages = list(chunked(books, books_pre_page))
+    for page_id, books_per_page in enumerate(pages):
         render_books = []
-        pages_amount = ceil(len(books) / 10)
+        pages_amount = len(pages)
         for book in books_per_page:
             new_render_book = {
                 'image': f'../{images_path}/{book["image_name"]}',
