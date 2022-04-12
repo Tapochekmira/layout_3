@@ -10,8 +10,7 @@ from math import ceil
 def get_books_from_file(file_path, file_name):
     path = os.path.join(file_path, file_name)
     with open(path, "r") as file:
-        books_json = file.read()
-    books = json.loads(books_json)
+        books = json.load(file)
     return books
 
 
