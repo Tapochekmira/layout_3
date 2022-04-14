@@ -14,7 +14,7 @@ def get_books_from_file(file_path, file_name):
     return books
 
 
-def fill_template(books_pre_page):
+def fill_template(books_per_page):
     json_file_path = 'json'
     json_file_name = 'books.json'
     images_path = 'images'
@@ -28,10 +28,10 @@ def fill_template(books_pre_page):
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-    pages = list(chunked(books, books_pre_page))
+    pages_amount = len(pages)
+    pages = list(chunked(books, books_per_page))
     for page_id, books_per_page in enumerate(pages):
         books_for_render = []
-        pages_amount = len(pages)
         for book in books_per_page:
             book_for_render = {
                 'image': f'../{images_path}/{book["image_name"]}',
@@ -53,8 +53,8 @@ def fill_template(books_pre_page):
 
 
 if __name__ == '__main__':
-    books_pre_page = 10
-    fill_template(books_pre_page)
+    books_per_page = 10
+    fill_template(books_per_page)
 
     server = Server()
     server.watch('template.html', fill_template)
