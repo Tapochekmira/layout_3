@@ -28,8 +28,8 @@ def fill_template(books_per_page):
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-    pages_amount = len(pages)
     pages = list(chunked(books, books_per_page))
+    pages_amount = len(pages)
     for page_id, books_per_page in enumerate(pages):
         books_for_render = []
         for book in books_per_page:
